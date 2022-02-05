@@ -33,7 +33,7 @@ app.post("/api/notes", (req, res) => {
   if (req.body && req.body.title && req.body.text) {
     console.info(`${req.method} request received to add note`);
 
-    const { title, text } = req.body;
+    const { title, text, id } = req.body;
 
     // Log the request body
     console.info(req.body);
