@@ -32,23 +32,18 @@ app.post("/api/notes", (req, res) => {
   // Log our request to the terminal
   if (req.body && req.body.title && req.body.text) {
     console.info(`${req.method} request received to add note`);
-
     const { title, text, id } = req.body;
-
     // Log the request body
     console.info(req.body);
-
     const newNote = {
       title,
       text,
       id: uuid(),
     };
     console.log(newNote);
-
     //const Note = JSON.stringify(newNote);
-
     const jsonFile = "./db/db.json";
-    let notes = JSON.parse(fs.readFileSync(jsonFile));
+    let notes = noteData || [];
     notes.push(newNote);
     fs.writeFile(jsonFile, JSON.stringify(notes), (err) =>
       err
@@ -56,6 +51,7 @@ app.post("/api/notes", (req, res) => {
         : console.log(`New note:"${title}" has been written to JSON file`)
     );
   }
+  res.json(newNote);
 });
 
 app.delete("/api/notes/:id", (req, res) => {
@@ -74,6 +70,7 @@ app.delete("/api/notes/:id", (req, res) => {
       : console.log(`Removed note: ${noteId} has been removed from JSON file`)
   );
 });
+res.json(newNotes);
 });
 
 app.listen(PORT, () =>
