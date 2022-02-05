@@ -3,13 +3,14 @@ const path = require("path");
 const fs = require("fs");
 const noteData = require("./db/db.json");
 // Helper method for generating unique ids
-const uuid = require('./helpers/uuid');
+const uuid = require("./helpers/uuid");
+const { CONNREFUSED } = require("dns");
 const PORT = process.env.PORT || 3001;
 
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 
@@ -24,9 +25,8 @@ app.get("/notes", (req, res) =>
 );
 
 // GET request for db.json return all saved notes as JSON
-app.get("/db/db.json", (req, res) => res.json(noteData));
+app.get("/api/notes", (req, res) => res.json(noteData));
 
-//work on this POST request
 // Post request to add note
 app.post("/api/notes", (req, res) => {
   // Log our request to the terminal
@@ -41,7 +41,7 @@ app.post("/api/notes", (req, res) => {
     const newNote = {
       title,
       text,
-      review_id: uuid(),
+      id: uuid(),
     };
     console.log(newNote);
 
@@ -56,6 +56,24 @@ app.post("/api/notes", (req, res) => {
         : console.log(`New note:"${title}" has been written to JSON file`)
     );
   }
+});
+
+app.delete("/api/notes/:id", (req, res) => {
+  let noteId = req.params.id;
+
+  fs.readFile("./db/db.json", (err, data) => {
+    let notes = JSON.parse(data);
+    let newNotes = notes.filter(note => {
+      console.log(note.id, noteId)
+      note.id != noteId
+    })
+
+    fs.writeFile("./db/db.json", JSON.stringify(newNotes), (err) =>
+    err
+      ? console.error(err)
+      : console.log(`Removed note: ${noteId} has been removed from JSON file`)
+  );
+});
 });
 
 app.listen(PORT, () =>
